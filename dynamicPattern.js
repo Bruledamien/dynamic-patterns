@@ -1,10 +1,10 @@
 /* ---------------------------------------------------------------------------*/
 // setup the canvas (dimensions, color)
 const width = 600;
-const height = 600;
-const strokewidth = 4;
-var draw = SVG('drawing').size(width, height);
-draw.rect(width, height).fill('blue').opacity(0.3);
+const height = 650;
+const strokewidth = 8;
+var canvas = SVG('drawing').size(width, height);
+canvas.rect(width, height).stroke({width: 3, color :'blue'}).opacity(0.2);
 
 /* ---------------------------------------------------------------------------*/
 // functions with explicit names that do simple math in a complicated language.
@@ -51,40 +51,50 @@ function rotate(cx, cy, x, y, angle) {
     return [nx, ny];
 }
 
+let rdir = 1;
 function rtransform(x, y, type) {
-  console.log('type', type, x ,y);
   if (type) {
-    const rdir = Math.random() > 1/2 ? 1 : - 1;
+    // type 1
+    const rangle = 30 + Math.random() * 315 ;
+    // if previous stitch was upwards, go in opposite direction THEN rotate.
+    return rotate(x, y, x, y - rdir * 20, rangle);
+  } else {
+    // type 0
+    rdir = Math.random() > 1/2 ? 1 : - 1;
     const rlength = 14 + 8 * Math.random();
     return [x, y + rdir * rlength];
-  } else {
-    const rangle = 30 + Math.random() * 315 ;
-    return rotate(x, y, x, y - 20, rangle);
   }
 }
 
 /* ---------------------------------------------------------------------------*/
 //
 const stitchParams = [
-  { width: strokewidth, color: 'red', opacity: 0.7, linecap: 'round' }, // type 0 stitch
-  { width: strokewidth, color: 'grey', opacity: 0.3, linecap: 'round' } // type 1 stitch
+  { width: strokewidth, color: '#00160d', opacity: 0.9, linecap: 'round' }, // type 0 stitch
+  { width: strokewidth, color: '#c6bf00', opacity: 0.5, linecap: 'round' } // type 1 stitch
 ];
 
 let type = 0;
+const animationDuration = 60000; // (1 frame lasts 60 seconds)
 function drawStich(x1, y1) {
   // draws stitch of type 0 or 1 beginning at position x1, y1
   loopBreaker = 50; // max number of tries before deciding path is blocked
   counter = 0;
   do {
     counter++;
-    if (counter > loopBreaker) {
-      console.log('');
-      // no draing and reinit x2, y2 starting point for next stitch
+    [x2, y2] = rtransform(x1, y1, type);
+    // if stitch is surrounded by other stitches it will loop forever hence the loopBreaker
+    if (counter > loopBreaker
+      // we also want to limit maximum positions of stitches.
+      || x2 < -0.5*width || width*1.5 < x2 || y2 < -height || 2*height < y2 ) {
+      // no drawing and reinit x2, y2 starting point for next stitch
       return [x1, y1, Math.random() * width, Math.random() * height];
     }
-    [x2, y2] = rtransform(x1, y1, type);
   } while (crossing(x1, y1, x2, y2, memory));
-  stitch = draw.line(x1, y1, x2, y2).stroke(stitchParams[type]);
+  // issue : pattern can be lower than height and it sticks at the end of animation.
+  // Should be condition based (animate till out of frame then remove)
+  stitch = canvas.line(x1, y1, x2, y2).stroke(stitchParams[type]);
+  stitch.animate(animationDuration).dy(-2*height);
+  type === 1 && stitch.back(); // put type 1 stitches below type 0.
   type = type ^ 1;
   // returns position of stitch
   return [x1, y1, x2, y2];
@@ -99,7 +109,6 @@ const memory = [];
 
 nbOfStitches = 0;
 maxNbOfStitches = 5000;
-
 const drawStitches = () => {
   nbOfStitches++;
   if (nbOfStitches > maxNbOfStitches) {
@@ -110,4 +119,5 @@ const drawStitches = () => {
   [x1, y1, x2, y2] = stitch;
 }
 
-const loopId = setInterval(drawStitches, 100);
+const drawingSpeed = 80 // (in milliseconds; 1 second = 1000)
+const loopId = setInterval(drawStitches, drawingSpeed);
