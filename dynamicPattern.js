@@ -2,7 +2,7 @@
 // setup the canvas (dimensions, color)
 const width = 600;
 const height = 650;
-const strokewidth = 8;
+const strokewidth = 6;
 var canvas = SVG('drawing').size(width, height);
 canvas.rect(width, height).stroke({width: 3, color :'blue'}).opacity(0.2);
 
@@ -55,14 +55,13 @@ let rdir = -1;
 function rtransform(x, y, type) {
   if (type) {
     // type 1
-    const rangle = 30 + Math.random() * 315
-    let rlength = 16 + 14 * Math.random();
-    // if previous stitch was upwards, go in opposite direction THEN rotate.
-    return rotate(x, y, x, y - rdir * 20, rangle);
+    const rangle = 60 + Math.random() * 300
+    let rlength = 12 + 14 * Math.random();
+    return rotate(x, y, x, y + rdir * rlength, rangle);
   } else {
     // type 0
     rdir = Math.random() > 1/2 ? 1 : - 1;
-    let rlength = 10 + 14 * Math.random();
+    let rlength = 8 + 14 * Math.random();
     return [x, y - rdir * rlength];
   }
 }
@@ -88,7 +87,7 @@ function drawStich(x1, y1) {
       // we also want to limit maximum positions of stitches.
       || x2 < -0.5*width || width*1.5 < x2 || y2 < -height || 2*height < y2 ) {
       // no drawing and reinit x2, y2 starting point for next stitch
-      return [x1, y1, Math.random() * width, Math.random() * height - height];
+      return [x1, y1, Math.random() * width, Math.random() * height];
     }
   } while (crossing(x1, y1, x2, y2, memory));
   // issue : pattern can be lower than height and it sticks at the end of animation.
@@ -120,5 +119,5 @@ const drawStitches = () => {
   [x1, y1, x2, y2] = stitch;
 }
 
-const drawingSpeed = 1 // (in milliseconds; 1 second = 1000)
+const drawingSpeed = 80 // (in milliseconds; 1 second = 1000)
 const loopId = setInterval(drawStitches, drawingSpeed);
