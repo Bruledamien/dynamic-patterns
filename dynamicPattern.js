@@ -37,7 +37,7 @@ function crossing(x1, y1, x2, y2, memory) {
 
 function unshiftpop(el, array) {
   // adds element "el" to list "array" and deletes an element if array is too big
-    if (array.unshift(el) > 1000) {
+    if (array.unshift(el) > 5000) {
       array.pop();
     }
 }
@@ -51,18 +51,19 @@ function rotate(cx, cy, x, y, angle) {
     return [nx, ny];
 }
 
-let rdir = 1;
+let rdir = -1;
 function rtransform(x, y, type) {
   if (type) {
     // type 1
-    const rangle = 30 + Math.random() * 315 ;
+    const rangle = 30 + Math.random() * 315
+    let rlength = 16 + 14 * Math.random();
     // if previous stitch was upwards, go in opposite direction THEN rotate.
     return rotate(x, y, x, y - rdir * 20, rangle);
   } else {
     // type 0
     rdir = Math.random() > 1/2 ? 1 : - 1;
-    const rlength = 14 + 8 * Math.random();
-    return [x, y + rdir * rlength];
+    let rlength = 10 + 14 * Math.random();
+    return [x, y - rdir * rlength];
   }
 }
 
@@ -87,13 +88,13 @@ function drawStich(x1, y1) {
       // we also want to limit maximum positions of stitches.
       || x2 < -0.5*width || width*1.5 < x2 || y2 < -height || 2*height < y2 ) {
       // no drawing and reinit x2, y2 starting point for next stitch
-      return [x1, y1, Math.random() * width, Math.random() * height];
+      return [x1, y1, Math.random() * width, Math.random() * height - height];
     }
   } while (crossing(x1, y1, x2, y2, memory));
   // issue : pattern can be lower than height and it sticks at the end of animation.
   // Should be condition based (animate till out of frame then remove)
   stitch = canvas.line(x1, y1, x2, y2).stroke(stitchParams[type]);
-  stitch.animate(animationDuration).dy(-2*height);
+  stitch.animate(animationDuration).dy(2*height);
   type === 1 && stitch.back(); // put type 1 stitches below type 0.
   type = type ^ 1;
   // returns position of stitch
@@ -119,5 +120,5 @@ const drawStitches = () => {
   [x1, y1, x2, y2] = stitch;
 }
 
-const drawingSpeed = 80 // (in milliseconds; 1 second = 1000)
+const drawingSpeed = 1 // (in milliseconds; 1 second = 1000)
 const loopId = setInterval(drawStitches, drawingSpeed);
