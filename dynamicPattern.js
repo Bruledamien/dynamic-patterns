@@ -2,9 +2,13 @@
 // setup the canvas (dimensions, color)
 const width = 600;
 const height = 650;
-const strokewidth = 6;
 var canvas = SVG('drawing').size(width, height);
-canvas.rect(width, height).stroke({width: 3, color :'blue'}).opacity(0.2);
+// careful : some stitches are positioned to the back (i.e behind the canvas).
+// Opacity of canvas should not be 1.
+canvas.rect(width, height).fill({ color: 'red', opacity: 0 }).stroke({ color: 'black', width: 5 });
+
+// size of the strokes
+const strokewidth = 6;
 
 /* ---------------------------------------------------------------------------*/
 // functions with explicit names that do simple math in a complicated language.
@@ -51,17 +55,22 @@ function rotate(cx, cy, x, y, angle) {
     return [nx, ny];
 }
 
+function randomIn(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+
 let rdir = -1;
 function rtransform(x, y, type) {
   if (type) {
     // type 1
     const rangle = 60 + Math.random() * 300
-    let rlength = 12 + 14 * Math.random();
+    let rlength = randomIn(12, 28);
     return rotate(x, y, x, y + rdir * rlength, rangle);
   } else {
     // type 0
     rdir = Math.random() > 1/2 ? 1 : - 1;
-    let rlength = 8 + 14 * Math.random();
+    let rlength = randomIn(8, 22);
     return [x, y - rdir * rlength];
   }
 }
@@ -73,8 +82,9 @@ const stitchParams = [
   { width: strokewidth, color: '#c6bf00', opacity: 0.5, linecap: 'round' } // type 1 stitch
 ];
 
+
 let type = 0;
-const animationDuration = 60000; // (1 frame lasts 60 seconds)
+const animationDuration = 300000; // (1 frame lasts 60 seconds)
 function drawStich(x1, y1) {
   // draws stitch of type 0 or 1 beginning at position x1, y1
   loopBreaker = 50; // max number of tries before deciding path is blocked
@@ -87,7 +97,7 @@ function drawStich(x1, y1) {
       // we also want to limit maximum positions of stitches.
       || x2 < -0.5*width || width*1.5 < x2 || y2 < -height || 2*height < y2 ) {
       // no drawing and reinit x2, y2 starting point for next stitch
-      return [x1, y1, Math.random() * width, Math.random() * height];
+      return [x1, y1, Math.random() * width, Math.random() * height - height];
     }
   } while (crossing(x1, y1, x2, y2, memory));
   // issue : pattern can be lower than height and it sticks at the end of animation.
@@ -119,5 +129,5 @@ const drawStitches = () => {
   [x1, y1, x2, y2] = stitch;
 }
 
-const drawingSpeed = 80 // (in milliseconds; 1 second = 1000)
+const drawingSpeed = 8 // (in milliseconds; 1 second = 1000)
 const loopId = setInterval(drawStitches, drawingSpeed);
