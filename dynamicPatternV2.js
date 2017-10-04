@@ -20,7 +20,7 @@ var pathString = "M534.014412,494.680881 C326.331277,308.203524 1,363.849357 1,3
 
 var path = canvas.path(pathString)
 //path.move(20, 20)
-path.stroke({ color: 'red', width: 1, linecap: 'round', linejoin: 'round' })
+//path.stroke({ color: 'red', width: 1, linecap: 'round', linejoin: 'round' })
 path.fill('none')
 
 b = path.bbox()
@@ -33,34 +33,70 @@ function randomIn(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-function drawStich(x1, y1, color) {
-  var x1 = x1 + randomIn(-5, 5)
-  var y1 = y1 + randomIn(-5, 5)
-  var x2 = x1 + randomIn(-2, 2)
-  var y2 = y1 + randomIn(10, 17);
+function drawStichH(x1, y1, color) {
+  var x1 = x1 + randomIn(-1, 1)
+  var x2 = x1 + randomIn(-1, 1)
+  var y1 = y1 + randomIn(-2, 2)
+  var y2 = y1 + randomIn(10, 20);
   stitch = canvas.line(x1, y1, x2, y2).stroke({ color: color, width: 4, linecap: 'round', linejoin: 'round' });
   return [x1, y1, x2, y2];
 }
 
-for (var i=0; i < width / density; i++) {
-  for (var j=0; j < height / stitchMaxHeight; j++) {
-    coords = [i * density, j * stitchMaxHeight]
-    inside = isInside(coords, pathString) || isInside(coords, pathString)
-    if (!inside) {
-      drawStich(coords[0], coords[1], 'grey');
+function drawStichV(x1, y1, x2, y2, color) {
+  stitch = canvas.line(x1, y1, x2, y2).stroke({ color: color, width: 2, linecap: 'round', linejoin: 'round', opacity: 0.3});
+  return [x1, y1, x2, y2];
+}
+
+// for (var i=0; i < width / density; i++) {
+//   for (var j=0; j < height / stitchMaxHeight; j++) {
+//     coords = [i * density, j * stitchMaxHeight]
+//     inside = isInside(coords, pathString)
+//     if (!inside) {
+//       drawStichH(coords[0], coords[1], 'grey');
+//     }
+//   }
+// }
+
+
+function stichLeftRight(y1) { // arg = first point of the line
+  for (var i=0; i < b.width / density2; i++){
+    coords = [b.x + i * density2, b.y + j * stitchMaxHeight]
+    inside = isInside(coords, pathString)
+    if (inside) {
+      [X2, Y2, Z1, Z2] = drawStichH(coords[0], coords[1], 'orange');
+      if (typeof X1 != "undefined") {
+        drawStichV(X1,Y1,X2,Y2, "blue");
+      }
+      X1 = Z1, Y1 = Z2;
     }
   }
+  return [X1, Y1, X2, Y2]
+}
+
+function stitchRightLeft(y1) { // arg = first point of the line
+  for (var i=Math.floor(b.width / density2); i > 0  ; i--){
+    coords = [b.x + i * density2, b.y + j * stitchMaxHeight]
+    inside = isInside(coords, pathString)
+    if (inside) {
+      // = drawStichH(coords[0], coords[1], 'darkgrey');
+      [X2, Y2, Z1, Z2] = drawStichH(coords[0], coords[1], 'darkgrey');
+      if (typeof X1 != "undefined") {
+        drawStichV(X1,Y1,X2,Y2, "blue");
+      }
+      X1 = Z1, Y1 = Z2;
+    }
+  }
+  return [X1, Y1, X2, Y2]
 }
 
 density2 = 15
-for (var i=0; i < b.width / density2; i++) {
-  for (var j=0; j < b.height / stitchMaxHeight; j++) {
-    coords = [b.x + i * density2, b.y + j * stitchMaxHeight]
-    inside = isInside(coords, pathString) || isInside(coords, pathString)
-    if (inside) {
-      drawStich(coords[0], coords[1], 'darkgrey');
-    }
-  }
+let X1, Y1, X2, Y2;
+for (var j=0; j < b.height / stitchMaxHeight; j++) {
+   if (j % 2 == 0 ) {
+     stitchRightLeft(j);
+   } else {
+     stichLeftRight(j);
+   }
 }
 
 //var point = [50, 50]
@@ -69,7 +105,5 @@ for (var i=0; i < b.width / density2; i++) {
 // var dot = canvas.circle(10).fill('#f06').move(50, 50)
 
 // console.log(isInside(point,testpathstr))
-
-console.log(isInside);
 //console.log(SVGpathArray)
 //console.log(SVGpathArray.bbox())
