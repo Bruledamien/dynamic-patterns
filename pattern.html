@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.polygons {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0);
+  stroke-width: 1px;
+}
+.sites {
+  fill: rgba(0, 0, 0, 1);
+  stroke: "black";
+}
+
+.stitchf {
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke: rgba(0, 0, 0, 0.8);
+}
+
+.stitchb {
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke: rgba(0, 255, 0, 0.8);
+}
+
+
+</style>
+<svg id="svgid" width="960" height="700"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="svg.min.js"></script>
+<script src="sites.js"></script>
+<script src="point-in-svg-polygon.js"></script>
+<script src="dat_gui.min.js"></script>
+<script src="dynamicPatternsD3.js"></script>
