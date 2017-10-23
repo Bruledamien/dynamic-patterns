@@ -9,9 +9,9 @@ var colors = {
 };
 
 var backgroundColors = {
-  blanc: "rgba(255,255,255,0.8)",
-  gris: "rgba(205,205,205,0.8)",
-  noir: "rgba(0,0,0,0.8)"
+  blanc: "rgba(255,255,255,0.9)",
+  gris: "rgba(205,205,205,0.9)",
+  noir: "rgba(0,0,0,0.9)"
 }
 
 
